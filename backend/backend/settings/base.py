@@ -30,6 +30,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    #APP
+    'accounts',
+    'holdings',
+    'investments',
+    'users',
     #DRF
     'rest_framework',
 ]
@@ -118,3 +123,5 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 APPEND_SLASH = False
+
+AUTH_USER_MODEL = 'users.User'
