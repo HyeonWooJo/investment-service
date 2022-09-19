@@ -124,7 +124,8 @@ def upload_asset_info(csv_asset_info):
                 user_holding = UserHolding.objects.get_or_create(
                     holding = holding,
                     user = user,
-                    quantity = holding_quantity
+                    quantity = holding_quantity,
+                    current_price = current_price
                 )[0]
 
                 result["success_rows"] += 1
@@ -189,18 +190,28 @@ def upload_asset_basic(csv_asset_basic):
 @transaction.atomic
 def calculate_account_total_asset():
     try:
-        users = User.objects.all()
-        for user in users:
-            user_account = user.account_set
-            user_account.total_assets = 0
+        # users = User.objects.all()
+        # for user in users:
+        #     user_account  = Account.objects.get(user=user)
+        #     user_holdings = UserHolding.objects.filter(user=user)
 
-            for user_holding in user.userholding_set.all():
-                user_account.total_assets += (
+        #     for user_holding in user_holdings():
+        #         user_account.total_assets += (
+        #             user_holding.current_price * \
+        #                 user_holding.quantity
+        #         )
+        #     user_account.save()
+
+        accounts = Account.objects.all()
+        for account in accounts:
+            user_holdings = UserHolding.objects.filter(user=account.user)
+
+            for user_holding in user_holdings:
+                account.total_assessts += (
                     user_holding.current_price * \
                         user_holding.quantity
                 )
-
-            user_account.save()
+            account.save()
 
     except Exception as e:
         transaction.set_rollback(rollback=True)
@@ -211,4 +222,4 @@ if __name__ == "__main__":
     upload_asset_group_info(CSV_PATH_ASSET_GROUP)
     upload_asset_info(CSV_PATH_ACCOUNT_ASSET)
     upload_asset_basic(CSV_PATH_ACCOUNT_BASIC)
-    # calculate_account_total_asset()
+    calculate_account_total_asset()
