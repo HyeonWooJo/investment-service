@@ -403,3 +403,4 @@ fabric.properties
 mysql/mysql_data/
 
 .env
+backend/csv/
