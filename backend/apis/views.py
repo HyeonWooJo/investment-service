@@ -2,10 +2,17 @@ from rest_framework import viewsets
 
 from .models import *
 from .serializers import (
-    AccountSerializer
+    InvestMainSerializer,
+    InvestDetailSerializer
 )
 
-class MainViewSet(viewsets.ModelViewSet):
-    """메인화면 CRUD API"""
+class InvestMainViewSet(viewsets.ModelViewSet):
+    """투자 메인 CRUD API"""
     queryset = Account.objects.all()
-    serializer_class = AccountSerializer
+    serializer_class = InvestMainSerializer
+
+
+class InvestDetailViewSet(viewsets.ModelViewSet):
+    """투자 메인 CRUD API"""
+    queryset = Account.objects.all()
+    serializer_class = InvestDetailSerializer
