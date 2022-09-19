@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 
 from .models import *
 
@@ -51,3 +50,29 @@ class InvestDetailSerializer(serializers.ModelSerializer):
         total_proceeds = total_assests - principal
 
         return (total_proceeds / principal * 100)
+
+
+class HoldingSerializer(serializers.ModelSerializer):
+    """보유 종목 Serializer"""
+    holding_name = serializers.SerializerMethodField()
+    asset_group = serializers.SerializerMethodField()
+    isin = serializers.SerializerMethodField()
+    appraisal_amount = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        exclude = '__all__'
+
+    def get_holding_name(self, object):
+        return object.userholding_set.holding.name
+    
+    def get_asset_group(self, object):
+        return object.userholding_set.holding.asset_group
+
+    def get_isin(self, object):
+        return object.userholding_set.holding.isin
+
+    def get_appraisal_amount(self, object):
+        current_price = object.userholding_set.current_price
+        quantity = object.userholding_set.quantity
+        return current_price * quantity
