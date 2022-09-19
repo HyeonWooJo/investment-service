@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'apis',
     #DRF
     'rest_framework',
+    'django_crontab',
 ]
 
 MIDDLEWARE = [
@@ -120,3 +121,11 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 APPEND_SLASH = False
+
+CRONJOBS = [
+    (
+        '* * * * *', 
+        'backend.apis.cron.hello_every_minute',
+        '>> /backend/apis/tmp/log/ggbc_cron.log'
+    ),
+]
