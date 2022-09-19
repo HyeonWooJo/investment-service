@@ -42,5 +42,4 @@ urlpatterns = [
     path('invests/detail/<int:pk>/', invest_detail_detail, name='invest-detail-detail'),
     path('invests/holding/', holding_list, name='holding-list'),
     path('invests/holding/<int:pk>/', holding_detail, name='holding-detail'),
-
 ]
