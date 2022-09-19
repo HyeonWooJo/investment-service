@@ -73,7 +73,6 @@ class HoldingSerializer(serializers.ModelSerializer):
         return object.userholding_set.holding.isin
 
     def get_appraisal_amount(self, object):
-        current_price = object.userholding_set.holding.current_price
+        current_price = object.userholding_set.current_price
         quantity = object.userholding_set.quantity
-
         return current_price * quantity

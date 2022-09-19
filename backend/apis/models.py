@@ -14,10 +14,10 @@ class User(models.Model):
 
 class Account(models.Model):
     """계좌 모델"""
-    account_name = models.CharField(max_length=40)
-    account_number = models.PositiveIntegerField()
+    account_name   = models.CharField(max_length=40)
+    account_number = models.CharField(max_length=45, null=False, unique=True)
     total_assessts = models.DecimalField(max_digits=15, decimal_places=2, default=0)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user           = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'accounts'
@@ -27,9 +27,9 @@ class Account(models.Model):
 
 
 class Investment(models.Model):
-    company = models.CharField(max_length=40)
+    company   = models.CharField(max_length=40)
     principal = models.DecimalField(max_digits=15, decimal_places=2, default=0)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    account   = models.ForeignKey(Account, on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'investment'
@@ -40,9 +40,8 @@ class Investment(models.Model):
 
 class Holding(models.Model):
     """주식 종목 모델"""
-    name = models.CharField(max_length=40)
-    isin = models.CharField(max_length=70)
-    current_price = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+    name        = models.CharField(max_length=40, unique=True, null=False, blank=False)
+    isin        = models.CharField(max_length=70, unique=True, null=False, blank=False)
     asset_group = models.CharField(max_length=40)
 
     class Meta:
@@ -54,9 +53,10 @@ class Holding(models.Model):
 
 class UserHolding(models.Model):
     """유저와 주식 종목의 중간 테이블"""
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    holding = models.ForeignKey(Holding, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField()
+    user          = models.ForeignKey(User, on_delete=models.CASCADE)
+    holding       = models.ForeignKey(Holding, on_delete=models.CASCADE)
+    quantity      = models.PositiveIntegerField(default=0)
+    current_price = models.DecimalField(max_digits=8, decimal_places=2, null=True)
 
     class Meta:
         db_table = 'user_holdings'
