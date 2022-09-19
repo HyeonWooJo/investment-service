@@ -178,6 +178,27 @@ def upload_asset_basic(csv_asset_basic):
         return result
 
 
+@transaction.atomic
+def calculate_account_total_asset():
+    try:
+        users = User.objects.all()
+        for user in users:
+            user_account = user.account_set
+            user_account.total_assets = 0
+
+            for user_holding in user.userholding_set.all():
+                user_account.total_assets += (
+                    user_holding.holding.current_price * \
+                        user_holding.quantity
+                )
+
+            user_account.save()
+
+    except Exception as e:
+        transaction.set_rollback(rollback=True)
+        raise ValidationError(str(e))
+
+
 if __name__ == "__main__":
     upload_asset_group_info(CSV_PATH_ASSET_GROUP)
     upload_asset_info(CSV_PATH_ACCOUNT_ASSET)
