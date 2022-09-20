@@ -54,25 +54,16 @@ class InvestDetailSerializer(serializers.ModelSerializer):
 
 class HoldingSerializer(serializers.ModelSerializer):
     """보유 종목 Serializer"""
-    holding_name     = serializers.SerializerMethodField()
-    asset_group      = serializers.SerializerMethodField()
-    isin             = serializers.SerializerMethodField()
     appraisal_amount = serializers.SerializerMethodField()
 
     class Meta:
-        model = User
-        exclude = ['name']
-
-    def get_holding_name(self, object):
-        return object.userholding_set.all()[0].holding.name
-    
-    def get_asset_group(self, object):
-        return object.userholding_set.all()[0].holding.asset_group
-
-    def get_isin(self, object):
-        return object.userholding_set.all()[0].holding.isin
+        model = UserHolding
+        fields = '__all__'
 
     def get_appraisal_amount(self, object):
-        current_price = object.userholding_set.all()[0].current_price
-        quantity      = object.userholding_set.all()[0].quantity
+        current_price = object.current_price
+        quantity      = object.quantity
         return current_price * quantity
+
+
+# class DepositSerializer(serializers.ModelSerializer):
