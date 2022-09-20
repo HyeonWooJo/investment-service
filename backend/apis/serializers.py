@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from .models import *
 
@@ -25,7 +26,7 @@ class InvestDetailSerializer(serializers.ModelSerializer):
     profit_rate    = serializers.SerializerMethodField()
 
     class Meta:
-        model = Account
+        model  = Account
         fields = '__all__'
 
     def get_company(self, object):
@@ -57,7 +58,7 @@ class HoldingSerializer(serializers.ModelSerializer):
     appraisal_amount = serializers.SerializerMethodField()
 
     class Meta:
-        model = UserHolding
+        model  = UserHolding
         fields = '__all__'
 
     def get_appraisal_amount(self, object):
@@ -66,4 +67,20 @@ class HoldingSerializer(serializers.ModelSerializer):
         return current_price * quantity
 
 
-# class DepositSerializer(serializers.ModelSerializer):
+class DepositSerializer(serializers.ModelSerializer):
+    """투자금 입금 Phase1 Serializer"""
+    transfer_identifier = serializers.SerializerMethodField()
+
+    class Meta:
+        model   = Account
+        exclude = [
+            'id', 
+            'account_name', 
+            'account_number', 
+            'total_assessts', 
+            'user'
+            ]
+
+    def get_transfer_identifier(self, object):
+        transfer_identifier = TransferIdentifier.objects.create(account=object)
+        return transfer_identifier.id

@@ -190,18 +190,6 @@ def upload_asset_basic(csv_asset_basic):
 @transaction.atomic
 def calculate_account_total_asset():
     try:
-        # users = User.objects.all()
-        # for user in users:
-        #     user_account  = Account.objects.get(user=user)
-        #     user_holdings = UserHolding.objects.filter(user=user)
-
-        #     for user_holding in user_holdings():
-        #         user_account.total_assets += (
-        #             user_holding.current_price * \
-        #                 user_holding.quantity
-        #         )
-        #     user_account.save()
-
         accounts = Account.objects.all()
         for account in accounts:
             user_holdings = UserHolding.objects.filter(user=account.user)
