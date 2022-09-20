@@ -26,8 +26,13 @@ class Account(models.Model):
         return self.id
 
 class TransferIdentifier(models.Model):
-    """입금 정보 식별자 모델"""
-    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+    """입금 거래 모델"""
+    account         = models.ForeignKey(Account, on_delete=models.CASCADE)
+    account_number  = models.CharField(max_length=100)
+    user_name       = models.CharField(max_length=100)
+    transfer_amount = models.IntegerField(default=0)
+    status          = models.CharField(max_length=40, null=True)
+    signature       = models.CharField(max_length=100, null=True)
 
     class Meta:
         db_table = 'transfer_identifiers'

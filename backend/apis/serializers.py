@@ -1,7 +1,11 @@
+import hashlib
+from unittest.util import _MAX_LENGTH
+
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from .models import *
+from .hash import hash_info
 
 
 class InvestMainSerializer(serializers.ModelSerializer):
@@ -67,20 +71,81 @@ class HoldingSerializer(serializers.ModelSerializer):
         return current_price * quantity
 
 
-class DepositSerializer(serializers.ModelSerializer):
-    """투자금 입금 Phase1 Serializer"""
-    transfer_identifier = serializers.SerializerMethodField()
+class DepositValidationSerializer(serializers.ModelSerializer):
+    """투자금 입금 유효성 검사 Serializer"""
+    transfer_identifier = serializers.ReadOnlyField(source="id")
 
     class Meta:
-        model   = Account
-        exclude = [
-            'id', 
-            'account_name', 
-            'account_number', 
-            'total_assessts', 
-            'user'
+        model   = TransferIdentifier
+        fields  = [
+            'transfer_identifier',
+            'account_number',
+            'user_name',
+            'transfer_amount'
             ]
+        extra_kwargs = {
+            "user_name": {"write_only": True},
+            "account_number": {"write_only": True},
+            "transfer_amount": {"write_only": True},
+        }
 
-    def get_transfer_identifier(self, object):
-        transfer_identifier = TransferIdentifier.objects.create(account=object)
-        return transfer_identifier.id
+    def create(self, validated_data):
+        account = Account.objects.get(account_number=validated_data['account_number'])
+        transfer_identifier = TransferIdentifier.objects.create(
+            account = account,
+            status  = 'validated',
+            **validated_data
+        )
+        return transfer_identifier
+
+
+    def validate(self, data):
+        """유저와 계좌에 대한 유효성 검사"""
+        user         = User.objects.get(name=data.get('user_name'))
+        account_user = Account.objects.get(account_number=data.get('account_number')).user
+        if user != account_user:
+            raise ValidationError('유저와 계좌의 유저가 다릅니다.')
+        return data
+
+
+class DepositSerialzer(serializers.ModelSerializer):
+    """투자금 입금 Serializer"""
+    transfer_identifier = serializers.ReadOnlyField(source="id")
+
+    class Meta:
+        model   = TransferIdentifier
+        fields  = [
+            'transfer_identifier',
+            'signature',
+            'status'
+            ]
+        extra_kwargs = {
+            "transfer_identifier": {"write_only": True},
+            "signature": {"write_only": True},
+        }
+
+    def validate(self, data):
+        signature           = data['signature']
+        transfer_identifier = data['transfer_identifier']
+        transfer = TransferIdentifier.objects.get(
+            id=transfer_identifier
+            )
+        transfer_info_str = f'{transfer.account_number}{transfer.user_name}\
+            {transfer.transfer_amount}'
+        transfer_hash = hash_info(transfer_info_str)
+
+        if signature != transfer_hash:
+            raise ValidationError('시그니처의 값이 유효하지 않습니다.')
+
+        return data
+
+    def update(self, instance, validated_data):
+        instance.status = 'true'
+        instance.save()
+        account = Account.objects.get(
+            account_number = instance.account_number
+        )
+        account.total_assessts += instance.transfer_amount
+        account.save()
+        
+        return instance

@@ -34,7 +34,6 @@ INSTALLED_APPS = [
     'apis',
     #DRF
     'rest_framework',
-    'django_crontab',
 ]
 
 MIDDLEWARE = [
@@ -121,19 +120,3 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 APPEND_SLASH = False
-
-# Redis Cache
-CACHES = {  
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        }
-    }
-}
-
-SESSION_ENGINE = "django.contrib.sessions.backends.cache"
-SESSION_CACHE_ALIAS = "default"
-
-CACHE_TTL = 60 * 1
