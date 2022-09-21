@@ -64,7 +64,6 @@ def upload_asset_group_info(csv_asset_group):
 
             result["total_csv_rows"] += 1
 
-        print(result)
         return result
 
 
@@ -139,7 +138,6 @@ def upload_asset_info(csv_asset_info):
 
             result["total_csv_rows"] += 1
 
-        print(result)
         return result
 
 
@@ -183,7 +181,6 @@ def upload_asset_basic(csv_asset_basic):
 
             result["total_csv_rows"] += 1
         
-        print(result)
         return result
 
 
