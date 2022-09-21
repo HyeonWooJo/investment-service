@@ -32,7 +32,6 @@ class TransferIdentifier(models.Model):
     user_name       = models.CharField(max_length=100)
     transfer_amount = models.IntegerField(default=0)
     status          = models.CharField(max_length=40, null=True)
-    signature       = models.CharField(max_length=100, null=True)
 
     class Meta:
         db_table = 'transfer_identifiers'

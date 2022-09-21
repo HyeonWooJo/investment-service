@@ -75,24 +75,15 @@ def DepositValidationView(request):
 @api_view(['POST'])
 def DepositView(request):
     """투자금 입금 API"""
-    # signature = request.data['signature']
-    # transfer_identifier = request.data['transfer_identifier']
-    # transfer = get_object_or_404(
-    #     TransferIdentifier, 
-    #     id=transfer_identifier
-    #     )
-    # transfer_info_str = f'{transfer.account_number}{transfer.user_name}{transfer.transfer_amount}'
-    # transfer_hash = hashlib.sha3_512(transfer_info_str.encode('utf-8')).hexdigest()
-
-    # """hash 값 검증"""
-    # if signature == transfer_hash:
-    #     account = get_object_or_404(Account, account_number=transfer.account_number)
     transfer = TransferIdentifier.objects.get(
         id=request.data['transfer_identifier']
         )
-    serializer = DepositSerialzer(instance=transfer, data=request.data)
+    serializer = DepositSerialzer(
+        transfer, 
+        data=request.data
+        )
     
-    if serializer.is_valid():
+    if serializer.is_valid(raise_exception=True):
         serializer.save()
 
     return Response(

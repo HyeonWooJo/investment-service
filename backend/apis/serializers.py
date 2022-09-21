@@ -1,6 +1,3 @@
-import hashlib
-from unittest.util import _MAX_LENGTH
-
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -110,7 +107,8 @@ class DepositValidationSerializer(serializers.ModelSerializer):
 
 class DepositSerialzer(serializers.ModelSerializer):
     """투자금 입금 Serializer"""
-    transfer_identifier = serializers.ReadOnlyField(source="id")
+    transfer_identifier = serializers.CharField(max_length=50, write_only=True)
+    signature = serializers.CharField(max_length=150, write_only=True)
 
     class Meta:
         model   = TransferIdentifier
@@ -119,10 +117,6 @@ class DepositSerialzer(serializers.ModelSerializer):
             'signature',
             'status'
             ]
-        extra_kwargs = {
-            "transfer_identifier": {"write_only": True},
-            "signature": {"write_only": True},
-        }
 
     def validate(self, data):
         signature           = data['signature']
@@ -130,18 +124,23 @@ class DepositSerialzer(serializers.ModelSerializer):
         transfer = TransferIdentifier.objects.get(
             id=transfer_identifier
             )
-        transfer_info_str = f'{transfer.account_number}{transfer.user_name}\
-            {transfer.transfer_amount}'
-        transfer_hash = hash_info(transfer_info_str)
+        transfer_info_str = f'{transfer.account_number}{transfer.user_name}{transfer.transfer_amount}'
+        transfer_hash     = hash_info(transfer_info_str)
 
         if signature != transfer_hash:
             raise ValidationError('시그니처의 값이 유효하지 않습니다.')
 
+        
+
         return data
 
     def update(self, instance, validated_data):
+        if instance.status == 'true':
+            raise ValidationError('이미 입금 완료된 작업입니다.')
+
         instance.status = 'true'
         instance.save()
+        
         account = Account.objects.get(
             account_number = instance.account_number
         )

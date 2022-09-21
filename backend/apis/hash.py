@@ -4,8 +4,7 @@ import os
 
 def hash_info(info):
     hashed_info = jwt.encode(
-        info, 
-        os.environ.get('SECRET_KEY'), 
+        {"info": info},
         os.environ.get('ALGORITHM')
     )
             
