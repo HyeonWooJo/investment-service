@@ -1,0 +1,10 @@
+APScheduler==3.9.1
+Django==4.1.1
+django-apscheduler==0.6.2
+django-crontab==0.7.1
+djangorestframework==3.13.1
+djangorestframework-simplejwt==5.2.0
+mysqlclient==2.1.1
+PyJWT==2.4.0
+python-dotenv==0.21.0
+pytz==2022.2.1
