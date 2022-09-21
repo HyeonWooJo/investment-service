@@ -127,20 +127,21 @@ class DepositSerialzer(serializers.ModelSerializer):
         transfer_info_str = f'{transfer.account_number}{transfer.user_name}{transfer.transfer_amount}'
         transfer_hash     = hash_info(transfer_info_str)
 
+        """시그니처 유효성 검사"""
         if signature != transfer_hash:
             raise ValidationError('시그니처의 값이 유효하지 않습니다.')
-
-        
-
         return data
 
     def update(self, instance, validated_data):
+        """이미 완료된 입금 프로세스 유효성 검사"""
         if instance.status == 'true':
             raise ValidationError('이미 입금 완료된 작업입니다.')
 
+        """유효성 검사 통과 및 status를 true로 수정"""
         instance.status = 'true'
         instance.save()
         
+        """식별자에 연결된 계좌에 투자금 입금"""
         account = Account.objects.get(
             account_number = instance.account_number
         )
