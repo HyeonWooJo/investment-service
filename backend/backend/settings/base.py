@@ -32,8 +32,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     #APP
     'apis',
+    'jobs',
     #DRF
     'rest_framework',
+    #Scheduler
+    'django_apscheduler',
 ]
 
 MIDDLEWARE = [
@@ -120,3 +123,6 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 APPEND_SLASH = False
+
+# 스케쥴러 자동 시작
+SCHEDULER_DEFAULT = True
