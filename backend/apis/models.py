@@ -25,8 +25,23 @@ class Account(models.Model):
     def __str__(self):
         return self.id
 
+class TransferIdentifier(models.Model):
+    """입금 거래 모델"""
+    account         = models.ForeignKey(Account, on_delete=models.CASCADE)
+    account_number  = models.CharField(max_length=100)
+    user_name       = models.CharField(max_length=100)
+    transfer_amount = models.IntegerField(default=0)
+    status          = models.CharField(max_length=40, null=True)
+
+    class Meta:
+        db_table = 'transfer_identifiers'
+
+    def __str__(self):
+        return self.id
+
 
 class Investment(models.Model):
+    """투자 모델"""
     company   = models.CharField(max_length=40)
     principal = models.DecimalField(max_digits=15, decimal_places=2, default=0)
     account   = models.ForeignKey(Account, on_delete=models.CASCADE)
