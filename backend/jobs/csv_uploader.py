@@ -1,6 +1,5 @@
 import logging
 import os
-import django
 import csv
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -8,12 +7,6 @@ from apscheduler.triggers.cron import CronTrigger
 
 from django.core.exceptions import ValidationError
 from django.db              import transaction 
-
-# os.environ.setdefault(
-#     "DJANGO_SETTINGS_MODULE", 
-#     "backend.settings.local"
-# )
-# django.setup()
 
 from apis.models import *
 from backend.settings.base import TIME_ZONE
