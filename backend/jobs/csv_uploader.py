@@ -1,21 +1,28 @@
+import logging
 import os
 import django
 import csv
 
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
+
 from django.core.exceptions import ValidationError
 from django.db              import transaction 
 
-os.environ.setdefault(
-    "DJANGO_SETTINGS_MODULE", 
-    "backend.settings.local"
-)
-django.setup()
+# os.environ.setdefault(
+#     "DJANGO_SETTINGS_MODULE", 
+#     "backend.settings.local"
+# )
+# django.setup()
 
 from apis.models import *
+from backend.settings.base import TIME_ZONE
 
-CSV_PATH_ACCOUNT_ASSET = './csv/account_asset_info_set.csv'
-CSV_PATH_ACCOUNT_BASIC = './csv/account_basic_info_set.csv'
-CSV_PATH_ASSET_GROUP   = './csv/asset_group_info_set.csv'
+dir_path = os.path.dirname(os.path.realpath(__file__))
+
+CSV_ACCOUNT_ASSET = os.path.join(dir_path, "csv/account_asset_info_set.csv")
+CSV_ACCOUNT_BASIC = os.path.join(dir_path, "csv/account_basic_info_set.csv")
+CSV_ASSET_GROUP   = os.path.join(dir_path, "csv/asset_group_info_set.csv")
 
 
 def upload_asset_group_info(csv_asset_group):
@@ -64,6 +71,7 @@ def upload_asset_group_info(csv_asset_group):
 
             result["total_csv_rows"] += 1
 
+        print(result)
         return result
 
 
@@ -138,6 +146,7 @@ def upload_asset_info(csv_asset_info):
 
             result["total_csv_rows"] += 1
 
+        print(result)
         return result
 
 
@@ -181,6 +190,7 @@ def upload_asset_basic(csv_asset_basic):
 
             result["total_csv_rows"] += 1
         
+        print(result)
         return result
 
 
@@ -203,8 +213,47 @@ def calculate_account_total_asset():
         raise ValidationError(str(e))
 
 
-if __name__ == "__main__":
-    upload_asset_group_info(CSV_PATH_ASSET_GROUP)
-    upload_asset_info(CSV_PATH_ACCOUNT_ASSET)
-    upload_asset_basic(CSV_PATH_ACCOUNT_BASIC)
+def execute_csv_uploader():
+    """
+    Execute all csv uploader function
+    :return:
+    """
+    filename = os.path.join(dir_path, "../test_log.log")
+
+    # Logger
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+
+    file_handler = logging.FileHandler(filename)
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(
+        logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+    )
+    logger.addHandler(file_handler)
+    logger.info("csv upload start..")
+
+    upload_asset_group_info(CSV_ASSET_GROUP)
+    upload_asset_info(CSV_ACCOUNT_ASSET)
+    upload_asset_basic(CSV_ACCOUNT_BASIC)
     calculate_account_total_asset()
+
+    logger.info("csv upload start.. end")
+
+
+def start():
+    """
+    스케쥴러 실행
+    - 실행 함수 : execute_csv_uploader
+    - 주기 : 매일 06시 실행
+    :return:
+    """
+    scheduler = BackgroundScheduler(timezone=TIME_ZONE)
+    scheduler.add_job(
+        execute_csv_uploader,
+        id="execute_csv_uploader",
+        trigger=CronTrigger(hour="6"),
+        max_instances=1,
+        replace_existing=True,
+        coalesce=True,
+    )
+    scheduler.start()
