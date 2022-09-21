@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from django.db import transaction
+
 from .models import *
 from .hash import hash_info
 
@@ -132,20 +134,26 @@ class DepositSerialzer(serializers.ModelSerializer):
             raise ValidationError('시그니처의 값이 유효하지 않습니다.')
         return data
 
+    @transaction.atomic
     def update(self, instance, validated_data):
-        """이미 완료된 입금 프로세스 유효성 검사"""
-        if instance.status == 'true':
-            raise ValidationError('이미 입금 완료된 작업입니다.')
+        try: 
+            """이미 완료된 입금 프로세스 유효성 검사"""
+            if instance.status == 'true':
+                raise ValidationError('이미 입금 완료된 작업입니다.')
 
-        """유효성 검사 통과 및 status를 true로 수정"""
-        instance.status = 'true'
-        instance.save()
-        
-        """식별자에 연결된 계좌에 투자금 입금"""
-        account = Account.objects.get(
-            account_number = instance.account_number
-        )
-        account.total_assessts += instance.transfer_amount
-        account.save()
-        
-        return instance
+            """유효성 검사 통과 및 status를 true로 수정"""
+            instance.status = 'true'
+            instance.save()
+            
+            """식별자에 연결된 계좌에 투자금 입금"""
+            account = Account.objects.get(
+                account_number = instance.account_number
+            )
+            account.total_assessts += instance.transfer_amount
+            account.save()
+            
+            return instance
+            
+        except Exception as e:
+            transaction.set_rollback(rollback=True)
+            raise ValidationError(str(e))
