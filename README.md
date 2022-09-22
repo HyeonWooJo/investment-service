@@ -1,6 +1,6 @@
 # 📋목차
 
-1. investment-service
+1. Investment-service
 2. 구현사항
 3. 기술 스택
 4. API Endpoints
@@ -11,7 +11,7 @@
 
 ---
 
-# 1. investment-service
+# 1. Investment-service
 - 설명: 증권 투자 및 계좌 관리 서비스
 - 개발 기간: 2022.09.16 ~ 2022.09.21
 
